@@ -1,0 +1,66 @@
+server:
+  port: 0
+
+info:
+    component: Person API Service
+
+
+hystrix:
+    threadpool:
+        default:
+            # Maximum number of concurrent requests when using thread pools (Default: 10)
+            coreSize: 100
+            # Maximum LinkedBlockingQueue size - -1 for using SynchronousQueue (Default: -1)
+            maxQueueSize: -1
+            # Queue size rejection threshold (Default: 5)
+            queueSizeRejectionThreshold: 5
+    command:
+        default:
+            circuitBreaker:
+                sleepWindowInMilliseconds: 30000
+                requestVolumeThreshold: 2
+        execution:
+            isolation:
+            #          strategy: SEMAPHORE, no thread pool but timeout handling stops to work
+                strategy: THREAD
+                thread:
+                    timeoutInMilliseconds: 4000
+
+
+eureka:
+    instance:
+        leaseRenewalIntervalInSeconds: 3
+        metadataMap:
+            instanceId: ${vcap.application.instance_id:${spring.application.name}:${spring.application.instance_id:${random.value}}}
+    client:
+        registryFetchIntervalSeconds: 5
+        instanceInfoReplicationIntervalSeconds: 5
+        initialInstanceInfoReplicationIntervalSeconds: 5
+
+
+logging:
+    level:
+        ROOT: WARN
+        be.foreseegroup: INFO
+        com.netflix.hystrix: DEBUG
+
+---
+# For deployment in Docker containers
+spring:
+    profiles: docker
+    rabbitmq:
+        host: rabbitmq
+
+server:
+    port: 8080
+
+#app:
+#    rabbitmq:
+#       host: rabbitmq
+
+eureka:
+    instance:
+        preferIpAddress: true
+    client:
+        serviceUrl:
+            defaultZone: http://discovery:8761/eureka/
