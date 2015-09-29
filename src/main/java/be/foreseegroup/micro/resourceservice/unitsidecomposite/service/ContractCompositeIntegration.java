@@ -43,40 +43,9 @@ public class ContractCompositeIntegration {
 
     @HystrixCommand(fallbackMethod = "aggregatedContractsFallback")
     public ResponseEntity<Iterable<ContractAggregated>> getAllAggregatedContracts() {
-        LOG.debug("Will call getAllAggregatedContracts with Hystrix protection");
-
-        URI uri = util.getServiceUrl("contract");
-        String url = uri.toString() + "/contracts";
-        LOG.debug("getAllAggregatedContracts from URL: {}", url);
-
-        ParameterizedTypeReference<Iterable<Contract>> responseType = new ParameterizedTypeReference<Iterable<Contract>>() {};
-        ResponseEntity<Iterable<Contract>> response = restTemplate.exchange(url, HttpMethod.GET, null, responseType);
+        ResponseEntity<Iterable<Contract>> response = getAllContracts();
         Iterable<Contract> contracts = response.getBody();
-
-        ArrayList<ContractAggregated> aggregatedContracts = new ArrayList<ContractAggregated>();
-
-        for (Contract contract : contracts) {
-            ContractAggregated aggregatedContract = new ContractAggregated(contract);
-
-            String unitId = contract.getUnitId();
-            String consultantId = contract.getConsultantId();
-
-            ResponseEntity<Unit> unitResponse = unitIntegration.getUnitById(unitId);
-            if (unitResponse.getStatusCode() == HttpStatus.OK) {
-                Unit unit = unitResponse.getBody();
-                aggregatedContract.setUnitName(unit.getName());
-            }
-
-            ResponseEntity<Consultant> consultantResponse = consultantIntegration.getConsultantById(consultantId);
-            if (consultantResponse.getStatusCode() == HttpStatus.OK) {
-                Consultant consultant = consultantResponse.getBody();
-                aggregatedContract.setConsultantFirstName(consultant.getFirstname());
-                aggregatedContract.setConsultantLastName(consultant.getLastname());
-            }
-
-            aggregatedContracts.add(aggregatedContract);
-        }
-
+        Iterable<ContractAggregated> aggregatedContracts = aggregateContracts(contracts);
         return new ResponseEntity<Iterable<ContractAggregated>>(aggregatedContracts, response.getHeaders(), response.getStatusCode());
     }
 
@@ -96,34 +65,9 @@ public class ContractCompositeIntegration {
 
     @HystrixCommand(fallbackMethod = "aggregatedContractFallback")
     public ResponseEntity<ContractAggregated> getAggregatedContractById(String contractId) {
-        LOG.debug("Will call getAggregatedContractById with Hystrix protection");
-
-        URI uri = util.getServiceUrl("contract");
-        String url = uri.toString() + "/contracts/"+contractId;
-        LOG.debug("getAggregatedContractById from URL: {}", url);
-
-        ResponseEntity<Contract> response = restTemplate.getForEntity(url, Contract.class);
-
+        ResponseEntity<Contract> response = getContractById(contractId);
         Contract contract = response.getBody();
-        ContractAggregated aggregatedContract = new ContractAggregated(contract);
-
-
-        String unitId = contract.getUnitId();
-        String consultantId = contract.getConsultantId();
-
-        ResponseEntity<Unit> unitResponse = unitIntegration.getUnitById(unitId);
-        if (unitResponse.getStatusCode() == HttpStatus.OK) {
-            Unit unit = unitResponse.getBody();
-            aggregatedContract.setUnitName(unit.getName());
-        }
-
-        ResponseEntity<Consultant> consultantResponse = consultantIntegration.getConsultantById(consultantId);
-        if (consultantResponse.getStatusCode() == HttpStatus.OK) {
-            Consultant consultant = consultantResponse.getBody();
-            aggregatedContract.setConsultantFirstName(consultant.getFirstname());
-            aggregatedContract.setConsultantLastName(consultant.getLastname());
-        }
-
+        ContractAggregated aggregatedContract = aggregateContract(contract);
         return new ResponseEntity<ContractAggregated>(aggregatedContract, response.getHeaders(), response.getStatusCode());
     }
 
@@ -179,40 +123,9 @@ public class ContractCompositeIntegration {
 
     @HystrixCommand(fallbackMethod = "aggregatedContractsFallback")
     public ResponseEntity<Iterable<ContractAggregated>> getAllAggregatedContractsByUnitId(String unitId) {
-        LOG.debug("Will call getAllAggregatedContractsByUnitId with Hystrix protection");
-
-        URI uri = util.getServiceUrl("contract");
-        String url = uri.toString() + "/contractsbyuid/"+unitId;
-        LOG.debug("getAllAggregatedContractsByUnitId from URL: {}", url);
-
-        ParameterizedTypeReference<Iterable<Contract>> responseType = new ParameterizedTypeReference<Iterable<Contract>>() {};
-        ResponseEntity<Iterable<Contract>> response = restTemplate.exchange(url, HttpMethod.GET, null, responseType);
+        ResponseEntity<Iterable<Contract>> response = getContractsByUnitId(unitId);
         Iterable<Contract> contracts = response.getBody();
-
-        ArrayList<ContractAggregated> aggregatedContracts = new ArrayList<ContractAggregated>();
-
-        for (Contract contract : contracts) {
-            ContractAggregated aggregatedContract = new ContractAggregated(contract);
-
-            String unitIdentifier = contract.getUnitId();
-            String consultantId = contract.getConsultantId();
-
-            ResponseEntity<Unit> unitResponse = unitIntegration.getUnitById(unitIdentifier);
-            if (unitResponse.getStatusCode() == HttpStatus.OK) {
-                Unit unit = unitResponse.getBody();
-                aggregatedContract.setUnitName(unit.getName());
-            }
-
-            ResponseEntity<Consultant> consultantResponse = consultantIntegration.getConsultantById(consultantId);
-            if (consultantResponse.getStatusCode() == HttpStatus.OK) {
-                Consultant consultant = consultantResponse.getBody();
-                aggregatedContract.setConsultantFirstName(consultant.getFirstname());
-                aggregatedContract.setConsultantLastName(consultant.getLastname());
-            }
-
-            aggregatedContracts.add(aggregatedContract);
-        }
-
+        Iterable<ContractAggregated> aggregatedContracts = aggregateContracts(contracts);
         return new ResponseEntity<Iterable<ContractAggregated>>(aggregatedContracts, response.getHeaders(), response.getStatusCode());
     }
 
@@ -232,40 +145,9 @@ public class ContractCompositeIntegration {
 
     @HystrixCommand(fallbackMethod = "aggregatedContractsFallback")
     public ResponseEntity<Iterable<ContractAggregated>> getAllAggregatedContractsByConsultantId(String consultantId) {
-        LOG.debug("Will call getAllAggregatedContractsByConsultantId with Hystrix protection");
-
-        URI uri = util.getServiceUrl("contract");
-        String url = uri.toString() + "/contractsbycid/"+consultantId;
-        LOG.debug("getAllAggregatedContractsByConsultantId from URL: {}", url);
-
-        ParameterizedTypeReference<Iterable<Contract>> responseType = new ParameterizedTypeReference<Iterable<Contract>>() {};
-        ResponseEntity<Iterable<Contract>> response = restTemplate.exchange(url, HttpMethod.GET, null, responseType);
+        ResponseEntity<Iterable<Contract>> response = getContractsByConsultantId(consultantId);
         Iterable<Contract> contracts = response.getBody();
-
-        ArrayList<ContractAggregated> aggregatedContracts = new ArrayList<ContractAggregated>();
-
-        for (Contract contract : contracts) {
-            ContractAggregated aggregatedContract = new ContractAggregated(contract);
-
-            String unitId = contract.getUnitId();
-            String consultantIdentifier = contract.getConsultantId();
-
-            ResponseEntity<Unit> unitResponse = unitIntegration.getUnitById(unitId);
-            if (unitResponse.getStatusCode() == HttpStatus.OK) {
-                Unit unit = unitResponse.getBody();
-                aggregatedContract.setUnitName(unit.getName());
-            }
-
-            ResponseEntity<Consultant> consultantResponse = consultantIntegration.getConsultantById(consultantIdentifier);
-            if (consultantResponse.getStatusCode() == HttpStatus.OK) {
-                Consultant consultant = consultantResponse.getBody();
-                aggregatedContract.setConsultantFirstName(consultant.getFirstname());
-                aggregatedContract.setConsultantLastName(consultant.getLastname());
-            }
-
-            aggregatedContracts.add(aggregatedContract);
-        }
-
+        Iterable<ContractAggregated> aggregatedContracts = aggregateContracts(contracts);
         return new ResponseEntity<Iterable<ContractAggregated>>(aggregatedContracts, response.getHeaders(), response.getStatusCode());
     }
 
@@ -325,6 +207,39 @@ public class ContractCompositeIntegration {
     public ResponseEntity<Iterable<ContractAggregated>> aggregatedContractsFallback() {
         LOG.warn("Using fallback method for contract-service");
         return new ResponseEntity<>(HttpStatus.BAD_GATEWAY);
+    }
+
+
+    private Iterable<ContractAggregated> aggregateContracts(Iterable<Contract> contracts) {
+        ArrayList<ContractAggregated> aggregatedContracts = new ArrayList<ContractAggregated>();
+
+        for (Contract contract : contracts) {
+            aggregatedContracts.add(aggregateContract(contract));
+        }
+
+        return aggregatedContracts;
+    }
+
+    private ContractAggregated aggregateContract(Contract contract) {
+        ContractAggregated aggregatedContract = new ContractAggregated(contract);
+
+        String unitId = contract.getUnitId();
+        String consultantId = contract.getConsultantId();
+
+        ResponseEntity<Unit> unitResponse = unitIntegration.getUnitById(unitId);
+        if (unitResponse.getStatusCode() == HttpStatus.OK) {
+            Unit unit = unitResponse.getBody();
+            aggregatedContract.setUnitName(unit.getName());
+        }
+
+        ResponseEntity<Consultant> consultantResponse = consultantIntegration.getConsultantById(consultantId);
+        if (consultantResponse.getStatusCode() == HttpStatus.OK) {
+            Consultant consultant = consultantResponse.getBody();
+            aggregatedContract.setConsultantFirstName(consultant.getFirstname());
+            aggregatedContract.setConsultantLastName(consultant.getLastname());
+        }
+
+        return aggregatedContract;
     }
 
 }
