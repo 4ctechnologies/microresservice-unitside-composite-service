@@ -2,13 +2,11 @@ package be.foreseegroup.micro.resourceservice.unitsidecomposite.service;
 
 import be.foreseegroup.micro.resourceservice.unitsidecomposite.model.Consultant;
 import be.foreseegroup.micro.resourceservice.unitsidecomposite.model.ConsultantAggregated;
-import be.foreseegroup.micro.resourceservice.unitsidecomposite.model.Contract;
 import be.foreseegroup.micro.resourceservice.unitsidecomposite.model.ContractAggregated;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
@@ -30,12 +28,29 @@ public class ConsultantCompositeIntegration {
     @Autowired
     ContractCompositeIntegration contractIntegration;
 
+    public RestTemplate getRestTemplate() {
+        return restTemplate;
+    }
+
+    public void setRestTemplate(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
+
     private RestTemplate restTemplate = new RestTemplate();
 
     /**
      * @todo:
      * Hystrix is also using the fallbackMethod when the person resource returns (intended) 4xx errors, e.g. 404 not found
      */
+
+    public String getMessage() {
+        String result;
+        String httpResult = restTemplate.getForObject("http://www.google.com",
+                String.class);
+        result = "Message SUCCESS result: " + httpResult;
+        System.out.println(result);
+        return result;
+    }
 
     @HystrixCommand(fallbackMethod = "aggregatedConsultantsFallback")
     public ResponseEntity<Iterable<ConsultantAggregated>> getAllAggregatedConsultants() {

@@ -1,6 +1,5 @@
 package be.foreseegroup.micro.resourceservice.unitsidecomposite.service;
 
-import be.foreseegroup.micro.resourceservice.unitsidecomposite.model.Contract;
 import be.foreseegroup.micro.resourceservice.unitsidecomposite.model.Unit;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import org.slf4j.Logger;
