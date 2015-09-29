@@ -5,12 +5,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
+import org.springframework.stereotype.Component;
 
 import java.net.URI;
 
 /**
  * Created by Kaj on 24/09/15.
  */
+@Component
 public class ServiceUtils {
     private static final Logger LOG = LoggerFactory.getLogger(ServiceUtils.class);
 

@@ -1,6 +1,7 @@
 package be.foreseegroup.micro.resourceservice.unitsidecomposite.service;
 
 import be.foreseegroup.micro.resourceservice.unitsidecomposite.model.Contract;
+import be.foreseegroup.micro.resourceservice.unitsidecomposite.model.ContractAggregated;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,17 +20,27 @@ public class ContractCompositeService {
     @Autowired
     ContractCompositeIntegration contractIntegration;
 
-    @RequestMapping(method = RequestMethod.GET, value="/contracts")
+    @RequestMapping(method = RequestMethod.GET, value="/ocontracts")
     public ResponseEntity<Iterable<Contract>> getAllContracts() {
         return contractIntegration.getAllContracts();
     }
 
-    @RequestMapping(method = RequestMethod.GET, value="/contracts/{contractId}")
+    @RequestMapping(method = RequestMethod.GET, value="/contracts")
+    public ResponseEntity<Iterable<ContractAggregated>> getAllAggregatedContracts() {
+        return contractIntegration.getAllAggregatedContracts();
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value="/ocontracts/{contractId}")
     public ResponseEntity<Contract> getContractById(@PathVariable String contractId) {
         return contractIntegration.getContractById(contractId);
     }
 
-    @RequestMapping(method = RequestMethod.POST)
+    @RequestMapping(method = RequestMethod.GET, value="/contracts/{contractId}")
+    public ResponseEntity<ContractAggregated> getAggregatedContractById(@PathVariable String contractId) {
+        return contractIntegration.getAggregatedContractById(contractId);
+    }
+
+    @RequestMapping(method = RequestMethod.POST, value="/contracts")
     public ResponseEntity<Contract> createContract(@RequestBody Contract contract) {
         return contractIntegration.createContract(contract);
     }

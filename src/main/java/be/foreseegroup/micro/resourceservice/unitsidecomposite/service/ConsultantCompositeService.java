@@ -1,6 +1,7 @@
 package be.foreseegroup.micro.resourceservice.unitsidecomposite.service;
 
 import be.foreseegroup.micro.resourceservice.unitsidecomposite.model.Consultant;
+import be.foreseegroup.micro.resourceservice.unitsidecomposite.model.ConsultantAggregated;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,17 +20,27 @@ public class ConsultantCompositeService {
     @Autowired
     ConsultantCompositeIntegration consultantIntegration;
 
-    @RequestMapping(method = RequestMethod.GET, value="/consultants")
+    @RequestMapping(method = RequestMethod.GET, value="/oconsultants")
     public ResponseEntity<Iterable<Consultant>> getAllConsultants() {
         return consultantIntegration.getAllConsultants();
     }
 
-    @RequestMapping(method = RequestMethod.GET, value="/consultants/{consultantId}")
+    @RequestMapping(method = RequestMethod.GET, value="/consultants")
+    public ResponseEntity<Iterable<ConsultantAggregated>> getAllAggregatedConsultants() {
+        return consultantIntegration.getAllAggregatedConsultants();
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value="/oconsultants/{consultantId}")
     public ResponseEntity<Consultant> getConsultantById(@PathVariable String consultantId) {
         return consultantIntegration.getConsultantById(consultantId);
     }
 
-    @RequestMapping(method = RequestMethod.POST)
+    @RequestMapping(method = RequestMethod.GET, value="/consultants/{consultantId}")
+    public ResponseEntity<ConsultantAggregated> getAggregatedConsultantById(@PathVariable String consultantId) {
+        return consultantIntegration.getAggregatedConsultantById(consultantId);
+    }
+
+    @RequestMapping(method = RequestMethod.POST, value="/consultants")
     public ResponseEntity<Consultant> createConsultant(@RequestBody Consultant consultant) {
         return consultantIntegration.createConsultant(consultant);
     }

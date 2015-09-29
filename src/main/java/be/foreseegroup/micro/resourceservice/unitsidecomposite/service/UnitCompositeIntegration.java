@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
@@ -15,14 +16,14 @@ import java.net.URI;
 /**
  * Created by Kaj on 24/09/15.
  */
+@Component
 public class UnitCompositeIntegration {
     private static final Logger LOG = LoggerFactory.getLogger(UnitCompositeIntegration.class);
 
     @Autowired
     private ServiceUtils util;
 
-    @Autowired
-    private RestTemplate restTemplate;
+    private RestTemplate restTemplate = new RestTemplate();
 
     /**
      * @todo:

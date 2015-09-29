@@ -29,7 +29,7 @@ public class UnitCompositeService {
         return unitIntegration.getUnitById(unitId);
     }
 
-    @RequestMapping(method = RequestMethod.POST)
+    @RequestMapping(method = RequestMethod.POST, value="/units")
     public ResponseEntity<Unit> createUnit(@RequestBody Unit unit) {
         return unitIntegration.createUnit(unit);
     }
