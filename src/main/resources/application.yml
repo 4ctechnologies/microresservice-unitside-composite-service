@@ -2,7 +2,7 @@ server:
   port: 0
 
 info:
-    component: Person API Service
+    component: Unitside API Service
 
 
 hystrix:
