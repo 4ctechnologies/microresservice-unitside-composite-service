@@ -229,14 +229,16 @@ public class ContractCompositeIntegration {
         ResponseEntity<Unit> unitResponse = unitIntegration.getUnitById(unitId);
         if (unitResponse.getStatusCode() == HttpStatus.OK) {
             Unit unit = unitResponse.getBody();
-            aggregatedContract.setUnitName(unit.getName());
+            //aggregatedContract.setUnitName(unit.getName());
+            aggregatedContract.setUnit(unit);
         }
 
         ResponseEntity<Consultant> consultantResponse = consultantIntegration.getConsultantById(consultantId);
         if (consultantResponse.getStatusCode() == HttpStatus.OK) {
             Consultant consultant = consultantResponse.getBody();
-            aggregatedContract.setConsultantFirstName(consultant.getFirstname());
-            aggregatedContract.setConsultantLastName(consultant.getLastname());
+            aggregatedContract.setConsultant(consultant);
+            //aggregatedContract.setConsultantFirstName(consultant.getFirstname());
+            //aggregatedContract.setConsultantLastName(consultant.getLastname());
         }
 
         return aggregatedContract;
