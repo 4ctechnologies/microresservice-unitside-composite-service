@@ -10,9 +10,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
+import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 
@@ -36,17 +39,40 @@ public class ContractCompositeIntegration {
 
     private RestTemplate restTemplate = new RestTemplate();
 
-    /**
-     * @todo:
-     * Hystrix is also using the fallbackMethod when the person resource returns (intended) 4xx errors, e.g. 404 not found
-     */
+    public ContractCompositeIntegration() {
+        /**
+         * Set the behaviour of the restTemplate that it does not throw exceptions (causing hystrix to break)
+         * on error HttpStatus 4xx codes
+         */
+        restTemplate.setErrorHandler(new ResponseErrorHandler() {
+            @Override
+            public boolean hasError(ClientHttpResponse response) throws IOException {
+                return false;
+            }
+
+            @Override
+            public void handleError(ClientHttpResponse response) throws IOException {
+                // do nothing, or something
+            }
+        });
+    }
+
+
 
     @HystrixCommand(fallbackMethod = "aggregatedContractsFallback")
     public ResponseEntity<Iterable<ContractAggregated>> getAllAggregatedContracts() {
+        ResponseEntity<Iterable<ContractAggregated>> result;
+
         ResponseEntity<Iterable<Contract>> response = getAllContracts();
-        Iterable<Contract> contracts = response.getBody();
-        Iterable<ContractAggregated> aggregatedContracts = aggregateContracts(contracts);
-        return new ResponseEntity<Iterable<ContractAggregated>>(aggregatedContracts, response.getHeaders(), response.getStatusCode());
+        if (response.getStatusCode().is2xxSuccessful()) {
+            Iterable<Contract> contracts = response.getBody();
+            Iterable<ContractAggregated> aggregatedContracts = aggregateContracts(contracts);
+            result = new ResponseEntity<>(aggregatedContracts, response.getHeaders(), response.getStatusCode());
+        }
+        else {
+            result = new ResponseEntity<>(response.getHeaders(), response.getStatusCode());
+        }
+        return result;
     }
 
 
@@ -65,10 +91,18 @@ public class ContractCompositeIntegration {
 
     @HystrixCommand(fallbackMethod = "aggregatedContractFallback")
     public ResponseEntity<ContractAggregated> getAggregatedContractById(String contractId) {
+        ResponseEntity<ContractAggregated> result;
+
         ResponseEntity<Contract> response = getContractById(contractId);
-        Contract contract = response.getBody();
-        ContractAggregated aggregatedContract = aggregateContract(contract);
-        return new ResponseEntity<ContractAggregated>(aggregatedContract, response.getHeaders(), response.getStatusCode());
+        if (response.getStatusCode().is2xxSuccessful()) {
+            Contract contract = response.getBody();
+            ContractAggregated aggregatedContract = aggregateContract(contract);
+            result = new ResponseEntity<ContractAggregated>(aggregatedContract, response.getHeaders(), response.getStatusCode());
+        }
+        else {
+            result = new ResponseEntity<ContractAggregated>(response.getHeaders(), response.getStatusCode());
+        }
+        return result;
     }
 
     @HystrixCommand(fallbackMethod = "contractFallback")
@@ -123,10 +157,18 @@ public class ContractCompositeIntegration {
 
     @HystrixCommand(fallbackMethod = "aggregatedContractsFallback")
     public ResponseEntity<Iterable<ContractAggregated>> getAllAggregatedContractsByUnitId(String unitId) {
+        ResponseEntity<Iterable<ContractAggregated>> result;
+
         ResponseEntity<Iterable<Contract>> response = getContractsByUnitId(unitId);
-        Iterable<Contract> contracts = response.getBody();
-        Iterable<ContractAggregated> aggregatedContracts = aggregateContracts(contracts);
-        return new ResponseEntity<Iterable<ContractAggregated>>(aggregatedContracts, response.getHeaders(), response.getStatusCode());
+        if (response.getStatusCode().is2xxSuccessful()) {
+            Iterable<Contract> contracts = response.getBody();
+            Iterable<ContractAggregated> aggregatedContracts = aggregateContracts(contracts);
+            result = new ResponseEntity<Iterable<ContractAggregated>>(aggregatedContracts, response.getHeaders(), response.getStatusCode());
+        }
+        else {
+            result = new ResponseEntity<Iterable<ContractAggregated>>(response.getHeaders(), response.getStatusCode());
+        }
+        return result;
     }
 
 
@@ -145,10 +187,18 @@ public class ContractCompositeIntegration {
 
     @HystrixCommand(fallbackMethod = "aggregatedContractsFallback")
     public ResponseEntity<Iterable<ContractAggregated>> getAllAggregatedContractsByConsultantId(String consultantId) {
+        ResponseEntity<Iterable<ContractAggregated>> result;
+
         ResponseEntity<Iterable<Contract>> response = getContractsByConsultantId(consultantId);
-        Iterable<Contract> contracts = response.getBody();
-        Iterable<ContractAggregated> aggregatedContracts = aggregateContracts(contracts);
-        return new ResponseEntity<Iterable<ContractAggregated>>(aggregatedContracts, response.getHeaders(), response.getStatusCode());
+        if (response.getStatusCode().is2xxSuccessful()) {
+            Iterable<Contract> contracts = response.getBody();
+            Iterable<ContractAggregated> aggregatedContracts = aggregateContracts(contracts);
+            result = new ResponseEntity<Iterable<ContractAggregated>>(aggregatedContracts, response.getHeaders(), response.getStatusCode());
+        }
+        else {
+            result = new ResponseEntity<Iterable<ContractAggregated>>(response.getHeaders(), response.getStatusCode());
+        }
+        return result;
     }
 
     @HystrixCommand(fallbackMethod = "contractsFallback")

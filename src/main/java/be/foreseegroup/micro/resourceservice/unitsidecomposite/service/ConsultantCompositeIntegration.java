@@ -9,9 +9,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
+import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 
@@ -38,10 +41,25 @@ public class ConsultantCompositeIntegration {
 
     private RestTemplate restTemplate = new RestTemplate();
 
-    /**
-     * @todo:
-     * Hystrix is also using the fallbackMethod when the person resource returns (intended) 4xx errors, e.g. 404 not found
-     */
+
+    public ConsultantCompositeIntegration() {
+        /**
+         * Set the behaviour of the restTemplate that it does not throw exceptions (causing hystrix to break)
+         * on error HttpStatus 4xx codes
+         */
+        restTemplate.setErrorHandler(new ResponseErrorHandler() {
+            @Override
+            public boolean hasError(ClientHttpResponse response) throws IOException {
+                return false;
+            }
+
+            @Override
+            public void handleError(ClientHttpResponse response) throws IOException {
+                // do nothing, or something
+            }
+        });
+    }
+
 
     public String getMessage() {
         String result;
@@ -54,10 +72,18 @@ public class ConsultantCompositeIntegration {
 
     @HystrixCommand(fallbackMethod = "aggregatedConsultantsFallback")
     public ResponseEntity<Iterable<ConsultantAggregated>> getAllAggregatedConsultants() {
+        ResponseEntity<Iterable<ConsultantAggregated>> result;
+
         ResponseEntity<Iterable<Consultant>> response = getAllConsultants();
-        Iterable<Consultant> consultants = response.getBody();
-        Iterable<ConsultantAggregated> aggregatedConsultants = aggregateConsultants(consultants);
-        return new ResponseEntity<Iterable<ConsultantAggregated>>(aggregatedConsultants, response.getHeaders(), response.getStatusCode());
+        if (response.getStatusCode().is2xxSuccessful()) { //Response w
+            Iterable<Consultant> consultants = response.getBody();
+            Iterable<ConsultantAggregated> aggregatedConsultants = aggregateConsultants(consultants);
+            result = new ResponseEntity<Iterable<ConsultantAggregated>>(aggregatedConsultants, response.getHeaders(), response.getStatusCode());
+        }
+        else {
+            result = new ResponseEntity<Iterable<ConsultantAggregated>>(response.getHeaders(), response.getStatusCode());
+        }
+        return result;
     }
 
     @HystrixCommand(fallbackMethod = "consultantsFallback")
@@ -69,16 +95,26 @@ public class ConsultantCompositeIntegration {
         LOG.debug("getAllConsultants from URL: {}", url);
 
         ParameterizedTypeReference<Iterable<Consultant>> responseType = new ParameterizedTypeReference<Iterable<Consultant>>() {};
-        ResponseEntity<Iterable<Consultant>> consultants = restTemplate.exchange(url, HttpMethod.GET, null, responseType);
+
+        ResponseEntity<Iterable<Consultant>> consultants;
+        consultants = restTemplate.exchange(url, HttpMethod.GET, null, responseType);
         return consultants;
     }
 
     @HystrixCommand(fallbackMethod = "aggregatedConsultantFallback")
     public ResponseEntity<ConsultantAggregated> getAggregatedConsultantById(String consultantId) {
+        ResponseEntity<ConsultantAggregated> result;
+
         ResponseEntity<Consultant> response = getConsultantById(consultantId);
-        Consultant consultant = response.getBody();
-        ConsultantAggregated aggregatedConsultant = aggregateConsultant(consultant);
-        return new ResponseEntity<ConsultantAggregated>(aggregatedConsultant, response.getHeaders(), response.getStatusCode());
+        if (response.getStatusCode().is2xxSuccessful()) {
+            Consultant consultant = response.getBody();
+            ConsultantAggregated aggregatedConsultant = aggregateConsultant(consultant);
+            result = new ResponseEntity<ConsultantAggregated>(aggregatedConsultant, response.getHeaders(), response.getStatusCode());
+        }
+        else {
+            result = new ResponseEntity<ConsultantAggregated>(response.getHeaders(), response.getStatusCode());
+        }
+        return result;
     }
 
     @HystrixCommand(fallbackMethod = "consultantFallback")
@@ -89,7 +125,8 @@ public class ConsultantCompositeIntegration {
         String url = uri.toString() + "/consultants/"+consultantId;
         LOG.debug("getConsultantById from URL: {}", url);
 
-        ResponseEntity<Consultant> consultant = restTemplate.getForEntity(url, Consultant.class);
+        ResponseEntity<Consultant> consultant;
+        consultant = restTemplate.getForEntity(url, Consultant.class);
         return consultant;
     }
 
@@ -101,7 +138,8 @@ public class ConsultantCompositeIntegration {
         String url = uri.toString() + "/consultants";
         LOG.debug("createConsultant from URL: {}", url);
 
-        ResponseEntity<Consultant> resultConsultant = restTemplate.postForEntity(url, consultant, Consultant.class);
+        ResponseEntity<Consultant> resultConsultant;
+        resultConsultant = restTemplate.postForEntity(url, consultant, Consultant.class);
         return resultConsultant;
     }
 
@@ -114,7 +152,9 @@ public class ConsultantCompositeIntegration {
         LOG.debug("updateConsultant from URL: {}", url);
 
         HttpEntity<Consultant> requestEntity = new HttpEntity<>(consultant, headers);
-        ResponseEntity<Consultant> resultConsultant = restTemplate.exchange(url, HttpMethod.PUT, requestEntity, Consultant.class);
+
+        ResponseEntity<Consultant> resultConsultant;
+        resultConsultant = restTemplate.exchange(url, HttpMethod.PUT, requestEntity, Consultant.class);
         return resultConsultant;
     }
 
@@ -127,7 +167,9 @@ public class ConsultantCompositeIntegration {
         LOG.debug("deleteConsultants from URL: {}", url);
 
         HttpEntity<Consultant> requestEntity = new HttpEntity<>(headers);
-        ResponseEntity<Consultant> resultConsultant = restTemplate.exchange(url, HttpMethod.DELETE, requestEntity, Consultant.class);
+
+        ResponseEntity<Consultant> resultConsultant;
+        resultConsultant = restTemplate.exchange(url, HttpMethod.DELETE, requestEntity, Consultant.class);
         return resultConsultant;
     }
 

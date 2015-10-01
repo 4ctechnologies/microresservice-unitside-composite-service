@@ -53,7 +53,7 @@ public class JustAnotherTest {
     }
 /*
     @Test
-    public void lalala(){
+    public void test123(){
         mockServer.expect(requestTo("http://google.com"))
                 .andExpect(method(HttpMethod.GET))
                 .andRespond(withSuccess("resultSuccess", MediaType.TEXT_PLAIN));
@@ -89,7 +89,7 @@ public class JustAnotherTest {
     @Test
     public void objecttest() {
         Consultant c = new Consultant("1","Kaj","Van der Hallen","Willebroek");
-        //String json = "{ \"firstname\" : \"Kaj\", \"lastname\" : \"Van der Hallen\", \"address\" : \"Willebroek\"}";
+
 
         String json = objectToJson(c);
 

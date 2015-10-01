@@ -41,7 +41,7 @@ eureka:
 logging:
     level:
         ROOT: WARN
-        be.foreseegroup: INFO
+        be.foreseegroup: DEBUG
         com.netflix.hystrix: DEBUG
 
 ---
