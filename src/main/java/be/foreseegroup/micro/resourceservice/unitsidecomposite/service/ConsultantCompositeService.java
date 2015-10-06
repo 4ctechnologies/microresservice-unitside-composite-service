@@ -20,25 +20,26 @@ public class ConsultantCompositeService {
     @Autowired
     ConsultantCompositeIntegration consultantIntegration;
 
-    @RequestMapping(method = RequestMethod.GET, value="/oconsultants")
+    @RequestMapping(method = RequestMethod.GET, value="/consultants")
     public ResponseEntity<Iterable<Consultant>> getAllConsultants() {
         return consultantIntegration.getAllConsultants();
     }
 
-    @RequestMapping(method = RequestMethod.GET, value="/consultants")
-    public ResponseEntity<Iterable<ConsultantAggregated>> getAllAggregatedConsultants() {
-        return consultantIntegration.getAllAggregatedConsultants();
-    }
 
-    @RequestMapping(method = RequestMethod.GET, value="/oconsultants/{consultantId}")
+//    @RequestMapping(method = RequestMethod.GET, value="/consultants")
+//    public ResponseEntity<Iterable<ConsultantAggregated>> getAllAggregatedConsultants() {
+//        return consultantIntegration.getAllAggregatedConsultants();
+//    }
+
+    @RequestMapping(method = RequestMethod.GET, value="/consultants/{consultantId}")
     public ResponseEntity<Consultant> getConsultantById(@PathVariable String consultantId) {
         return consultantIntegration.getConsultantById(consultantId);
     }
 
-    @RequestMapping(method = RequestMethod.GET, value="/consultants/{consultantId}")
-    public ResponseEntity<ConsultantAggregated> getAggregatedConsultantById(@PathVariable String consultantId) {
-        return consultantIntegration.getAggregatedConsultantById(consultantId);
-    }
+//    @RequestMapping(method = RequestMethod.GET, value="/consultants/{consultantId}")
+//    public ResponseEntity<ConsultantAggregated> getAggregatedConsultantById(@PathVariable String consultantId) {
+//        return consultantIntegration.getAggregatedConsultantById(consultantId);
+//    }
 
     @RequestMapping(method = RequestMethod.POST, value="/consultants")
     public ResponseEntity<Consultant> createConsultant(@RequestBody Consultant consultant) {

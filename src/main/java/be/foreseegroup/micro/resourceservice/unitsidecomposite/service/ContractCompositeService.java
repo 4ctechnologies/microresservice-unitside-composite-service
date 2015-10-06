@@ -20,25 +20,25 @@ public class ContractCompositeService {
     @Autowired
     ContractCompositeIntegration contractIntegration;
 
-    @RequestMapping(method = RequestMethod.GET, value="/ocontracts")
+    @RequestMapping(method = RequestMethod.GET, value="/contracts")
     public ResponseEntity<Iterable<Contract>> getAllContracts() {
         return contractIntegration.getAllContracts();
     }
 
-    @RequestMapping(method = RequestMethod.GET, value="/contracts")
-    public ResponseEntity<Iterable<ContractAggregated>> getAllAggregatedContracts() {
-        return contractIntegration.getAllAggregatedContracts();
-    }
+//    @RequestMapping(method = RequestMethod.GET, value="/contracts")
+//    public ResponseEntity<Iterable<ContractAggregated>> getAllAggregatedContracts() {
+//        return contractIntegration.getAllAggregatedContracts();
+//    }
 
-    @RequestMapping(method = RequestMethod.GET, value="/ocontracts/{contractId}")
+    @RequestMapping(method = RequestMethod.GET, value="/contracts/{contractId}")
     public ResponseEntity<Contract> getContractById(@PathVariable String contractId) {
         return contractIntegration.getContractById(contractId);
     }
 
-    @RequestMapping(method = RequestMethod.GET, value="/contracts/{contractId}")
-    public ResponseEntity<ContractAggregated> getAggregatedContractById(@PathVariable String contractId) {
-        return contractIntegration.getAggregatedContractById(contractId);
-    }
+//    @RequestMapping(method = RequestMethod.GET, value="/contracts/{contractId}")
+//    public ResponseEntity<ContractAggregated> getAggregatedContractById(@PathVariable String contractId) {
+//        return contractIntegration.getAggregatedContractById(contractId);
+//    }
 
     @RequestMapping(method = RequestMethod.POST, value="/contracts")
     public ResponseEntity<Contract> createContract(@RequestBody Contract contract) {
