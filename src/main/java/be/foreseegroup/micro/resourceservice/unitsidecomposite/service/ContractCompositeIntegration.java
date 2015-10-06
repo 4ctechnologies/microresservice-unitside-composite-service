@@ -231,7 +231,7 @@ public class ContractCompositeIntegration {
         return new ResponseEntity<>(HttpStatus.BAD_GATEWAY);
     }
 
-    public ResponseEntity<Iterable<Contract>> contractsFallBack(String consultantOrUnitId) {
+    public ResponseEntity<Iterable<Contract>> contractsFallback(String consultantOrUnitId) {
         return contractsFallback();
     }
 

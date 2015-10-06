@@ -40,6 +40,16 @@ public class ContractCompositeService {
 //        return contractIntegration.getAggregatedContractById(contractId);
 //    }
 
+    @RequestMapping(method = RequestMethod.GET, value="/contracts/bycid/{consultantId}")
+    public ResponseEntity<Iterable<Contract>> getContractsByConsultantId(@PathVariable String consultantId) {
+        return contractIntegration.getContractsByConsultantId(consultantId);
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value="/contracts/byuid/{unitId}")
+    public ResponseEntity<Iterable<Contract>> getContractsByUnitId(@PathVariable String unitId) {
+        return contractIntegration.getContractsByUnitId(unitId);
+    }
+
     @RequestMapping(method = RequestMethod.POST, value="/contracts")
     public ResponseEntity<Contract> createContract(@RequestBody Contract contract) {
         return contractIntegration.createContract(contract);
